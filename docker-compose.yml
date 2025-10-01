@@ -2,7 +2,7 @@ version: "3.9"
 services:
   pg-snippets:
     image: postgres:16
-    environment:
+    environment: # Credenciales que Postgres crea al iniciar
       POSTGRES_USER: snippets
       POSTGRES_PASSWORD: snippets
       POSTGRES_DB: snippets
