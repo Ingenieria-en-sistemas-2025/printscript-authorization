@@ -1,13 +1,35 @@
 version: "3.9"
+
 services:
-  pg-snippets:
+  pg-snippets: #levanta postgres16
     image: postgres:16
-    environment: # Credenciales que Postgres crea al iniciar
+    environment:
       POSTGRES_USER: snippets
       POSTGRES_PASSWORD: snippets
       POSTGRES_DB: snippets
-    ports: [ "5433:5432" ]
-    volumes:
-      - pg_snippets:/var/lib/postgresql/data
+    volumes: ["pg_snippets:/var/lib/postgresql/data"]
+    ports: ["5433:5432"]
+    networks: [printscript-net]
+
+  snippets:
+    build: . #usa el Dockerfile de la raíz para construir la imagen.
+    container_name: ps-snippets
+    ports: [ "8081:8081" ]
+    environment:
+      # Datasource dentro de Docker (no localhost)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg-snippets:5432/snippets #nombre del servicio de Postgres dentro de la red
+      SPRING_DATASOURCE_USERNAME: snippets
+      SPRING_DATASOURCE_PASSWORD: snippets
+      # URL a Execution en la MISMA red de Docker
+      EXECUTION_BASE_URL: http://execution:8082
+      LOGGING_LEVEL_ROOT: INFO
+    depends_on: [ pg-snippets ]
+    networks: [ printscript-net ]
+
 volumes:
-  pg_snippets:
+  pg_snippets: {}
+
+networks:
+  printscript-net:
+    external: true
+
