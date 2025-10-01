@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  pg-snippets:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: snippets
+      POSTGRES_PASSWORD: snippets
+      POSTGRES_DB: snippets
+    ports: [ "5433:5432" ]
+    volumes:
+      - pg_snippets:/var/lib/postgresql/data
+volumes:
+  pg_snippets:
