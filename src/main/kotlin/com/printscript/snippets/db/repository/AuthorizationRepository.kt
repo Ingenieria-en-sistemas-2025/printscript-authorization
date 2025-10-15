@@ -10,5 +10,5 @@ interface AuthorizationRepository : JpaRepository<Authorization, String> {
     fun countAllByUserId(userId: String): Int
     fun findByUserIdAndSnippetId(userId: String, snippetId: String): Optional<Authorization>
     fun deleteAllBySnippetId(snippetId: String)
-    fun getByScope_NameAndSnippetId(name: String, snippetId: String): Authorization
+    fun getByScopeNameAndSnippetId(name: String, snippetId: String): Authorization
 }
