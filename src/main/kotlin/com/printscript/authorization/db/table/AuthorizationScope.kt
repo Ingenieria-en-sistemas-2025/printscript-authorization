@@ -1,4 +1,4 @@
-package com.printscript.snippets.db.table
+package com.printscript.authorization.db.table
 
 import jakarta.persistence.Entity
 import jakarta.persistence.OneToMany
@@ -8,5 +8,5 @@ data class AuthorizationScope(
     val name: String,
 
     @OneToMany(mappedBy = "scope")
-    val authorizations: List<Authorization>? = null
+    val authorizations: List<Authorization>? = null,
 ) : CommonFields()

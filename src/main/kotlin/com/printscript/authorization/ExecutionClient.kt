@@ -1,4 +1,4 @@
-package com.printscript.snippets
+package com.printscript.authorization
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

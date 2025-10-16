@@ -1,4 +1,4 @@
-package com.printscript.snippets
+package com.printscript.authorization
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

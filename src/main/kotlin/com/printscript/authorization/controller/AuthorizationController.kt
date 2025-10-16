@@ -1,9 +1,9 @@
-package com.printscript.snippets.controller
+package com.printscript.authorization.controller
 
-import com.printscript.snippets.config.Routes
-import com.printscript.snippets.dto.AuthorizationCreateRequest
-import com.printscript.snippets.dto.AuthorizationPage
-import com.printscript.snippets.service.AuthorizationService
+import com.printscript.authorization.config.Routes
+import com.printscript.authorization.dto.AuthorizationCreateRequest
+import com.printscript.authorization.dto.AuthorizationPage
+import com.printscript.authorization.service.AuthorizationService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(Routes.AUTHORIZATION)
 class AuthorizationController(
-    private val service: AuthorizationService
+    private val service: AuthorizationService,
 ) {
 
     @PostMapping(Routes.CREATE)

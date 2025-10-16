@@ -23,6 +23,8 @@ services:
       # URL a Execution en la MISMA red de Docker
       EXECUTION_BASE_URL: http://execution:8082
       LOGGING_LEVEL_ROOT: INFO
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: https://dev-c2gyaqqsxa2v3nig.us.auth0.com/
+      AUTH0_AUDIENCE: https://snippet-manager
     depends_on: [ pg-snippets ]
     networks: [ printscript-net ]
 

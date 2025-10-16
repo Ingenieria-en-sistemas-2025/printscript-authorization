@@ -1,4 +1,4 @@
-package com.printscript.snippets
+package com.printscript.authorization
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController

@@ -1,4 +1,4 @@
-package com.printscript.snippets.config
+package com.printscript.authorization.config
 
 object Routes {
     const val AUTHORIZATION = "authorization"

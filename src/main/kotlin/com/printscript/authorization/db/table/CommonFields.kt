@@ -1,4 +1,4 @@
-package com.printscript.snippets.db.table
+package com.printscript.authorization.db.table
 
 import jakarta.persistence.Column
 import jakarta.persistence.GeneratedValue
@@ -20,5 +20,5 @@ abstract class CommonFields(
     val createdAt: LocalDateTime? = null,
 
     @UpdateTimestamp
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 )

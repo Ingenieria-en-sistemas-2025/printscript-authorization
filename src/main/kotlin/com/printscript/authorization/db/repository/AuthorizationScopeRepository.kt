@@ -1,6 +1,6 @@
-package com.printscript.snippets.db.repository
+package com.printscript.authorization.db.repository
 
-import com.printscript.snippets.db.table.AuthorizationScope
+import com.printscript.authorization.db.table.AuthorizationScope
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 
