@@ -125,21 +125,15 @@ tasks.register<Copy>("installGitHooks") {
 
     from(hooksSrc)
     into(hooksDst)
-    fileMode = Integer.parseInt("775", 8)
+    fileMode = Integer.parseInt("775", 8) //chmod +x
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.register("printGitHooksStatus") {
     outputs.upToDateWhen { false }
     doLast {
-        val preCommit = hooksDst.file("pre-commit").asFile
-        val prePush = hooksDst.file("pre-push").asFile
-
-        println("Git dir       : ${gitDir.asFile.absolutePath} " + if (gitDir.asFile.exists()) "(OK)" else "(MISSING)")
-        println("Source hooks  : ${hooksSrc.asFile.absolutePath} " + if (hooksSrc.asFile.exists()) "(OK)" else "(MISSING)")
-        println("Target hooks  : ${hooksDst.asFile.absolutePath} " + if (hooksDst.asFile.exists()) "(OK)" else "(MISSING)")
-        println("pre-commit    : " + if (preCommit.exists()) "OK" else "MISSING")
-        println("pre-push      : " + if (prePush.exists()) "OK" else "MISSING")
+        val prePush = layout.projectDirectory.file(".git/hooks/pre-push").asFile
+        println("pre-push: " + if (prePush.exists()) "OK" else "MISSING")
     }
 }
 
