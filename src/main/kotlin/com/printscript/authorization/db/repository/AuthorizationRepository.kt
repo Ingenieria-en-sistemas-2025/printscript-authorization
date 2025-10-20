@@ -12,14 +12,17 @@ interface AuthorizationRepository : JpaRepository<Authorization, String> {
     fun countAllByUserId(userId: String): Int
     fun findByUserIdAndSnippetId(userId: String, snippetId: String): Optional<Authorization>
     fun deleteAllBySnippetId(snippetId: String)
-    @Query("""
+
+    @Query(
+        """
         SELECT a
         FROM Authorization a
         JOIN a.scope s
         WHERE s.name = :scopeName AND a.snippetId = :snippetId
-    """)
+    """,
+    )
     fun findByScopeNameAndSnippetId(
         @Param("scopeName") scopeName: String,
-        @Param("snippetId") snippetId: String
+        @Param("snippetId") snippetId: String,
     ): Optional<Authorization>
 }

@@ -6,9 +6,9 @@ import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.dto.AuthorizationPage
 import com.printscript.authorization.dto.AuthorizationView
+import com.printscript.authorization.exceptions.OwnerNotFound
 import com.printscript.authorization.exceptions.ScopeNotFound
 import com.printscript.authorization.exceptions.UserAlreadyAuthorized
-import com.printscript.authorization.exceptions.OwnerNotFound
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -49,7 +49,7 @@ class AuthorizationService(
                 it.id!!,
                 it.snippetId,
                 ownerAuth?.userId ?: it.userId,
-                it.scope.name
+                it.scope.name,
             )
         }
 

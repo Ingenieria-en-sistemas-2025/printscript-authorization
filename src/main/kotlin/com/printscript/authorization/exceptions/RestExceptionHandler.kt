@@ -39,5 +39,4 @@ class RestExceptionHandler {
                 path = req.requestURI,
             ),
         )
-
 }

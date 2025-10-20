@@ -25,7 +25,7 @@ class AuthorizationController(
     @PostMapping(Routes.CREATE)
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestBody input: AuthorizationCreateRequest
+        @RequestBody input: AuthorizationCreateRequest,
     ): ResponseEntity<Unit> {
         service.createAuthorization(input.copy(userId = jwt.subject))
         return ResponseEntity.ok().build()
@@ -35,7 +35,7 @@ class AuthorizationController(
     fun listMine(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestParam("page") page: Int,
-        @RequestParam("size") size: Int
+        @RequestParam("size") size: Int,
     ): AuthorizationPage {
         return service.listByUser(jwt.subject, page, size)
     }

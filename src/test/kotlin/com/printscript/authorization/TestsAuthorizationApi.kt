@@ -34,9 +34,13 @@ import kotlin.test.assertEquals
 class TestsAuthorizationApi {
 
     @Autowired lateinit var scopeRepo: AuthorizationScopeRepository
+
     @Autowired lateinit var authRepo: AuthorizationRepository
+
     @Autowired lateinit var service: AuthorizationService
+
     @Autowired lateinit var mockMvc: MockMvc
+
     @Autowired lateinit var json: ObjectMapper
 
     private val base = "/authorization"

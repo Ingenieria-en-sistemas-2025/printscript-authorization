@@ -133,7 +133,7 @@ tasks.register("printGitHooksStatus") {
     outputs.upToDateWhen { false }
     doLast {
         val preCommit = hooksDst.file("pre-commit").asFile
-        val prePush   = hooksDst.file("pre-push").asFile
+        val prePush = hooksDst.file("pre-push").asFile
 
         println("Git dir       : ${gitDir.asFile.absolutePath} " + if (gitDir.asFile.exists()) "(OK)" else "(MISSING)")
         println("Source hooks  : ${hooksSrc.asFile.absolutePath} " + if (hooksSrc.asFile.exists()) "(OK)" else "(MISSING)")
@@ -151,4 +151,3 @@ tasks.register("ensureGitHooks") {
 listOf("build", "check", "test", "assemble").forEach { taskName ->
     tasks.named(taskName).configure { dependsOn("ensureGitHooks") }
 }
-
