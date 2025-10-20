@@ -8,6 +8,7 @@ import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.db.table.AuthorizationScope
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.service.AuthorizationService
+import jakarta.transaction.Transactional
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
@@ -123,7 +124,8 @@ class TestsAuthorizationApi {
     }
 
     @Nested
-    inner class Queries {
+    @Transactional
+    open inner class Queries {
         @Test
         fun testFindOwner() {
             val sn = "sn-owner"

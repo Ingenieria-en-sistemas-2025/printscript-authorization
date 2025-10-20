@@ -12,9 +12,13 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
+import org.springframework.security.oauth2.core.OAuth2TokenValidator
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.JwtDecoders
+import org.springframework.security.oauth2.jwt.JwtValidators
+import org.springframework.security.oauth2.jwt.JwtClaimValidator
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
@@ -22,11 +26,12 @@ import com.printscript.authorization.config.Routes as R
 
 @Configuration
 @EnableWebSecurity
-@Profile("!test") // para poder usar TestSecurityConfig en los tests que no necesita Auth0
+@Profile("!test")
 class SecurityConfig(
-    @param:Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    // descargar claves publicas con las que valida la firma del JWT
+    @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private val issuer: String,
+    @Value("\${auth0.audience}")
+    private val audience: String,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
@@ -62,18 +67,25 @@ class SecurityConfig(
             authorities?.addAll(perms.map { SimpleGrantedAuthority("SCOPE_$it") })
             JwtAuthenticationToken(jwt, authorities, jwt.subject)
         }
-    //conversor para que lea el campo permissions del token y lo transforme en objetos GrantedAuthority,
-    // que son los que Spring usa para verificar accesos
     }
 
     @Bean
-    fun jwtDecoder(): JwtDecoder = JwtDecoders.fromIssuerLocation(issuer)
-    /*
-    Descarga las claves publicas de Auth0
-    Valida la firma de los tokens que llegan
-    Chequea que el claim iss coincida con el configurado
-    Chequea expiracion (exp), emisión (iat), etc.
+    fun jwtDecoder(tokenValidator: OAuth2TokenValidator<Jwt>): JwtDecoder =
+        NimbusJwtDecoder.withIssuerLocation(issuer).build().apply {
+            setJwtValidator(tokenValidator)
+        }
 
-    Si algo falla -> 401 Unauthorized.
-     */
+    @Bean
+    fun tokenValidator(): OAuth2TokenValidator<Jwt> {
+        // 1) Validar por issuer y checks estandar (exp, nbf, etc.)
+        val withIssuer: OAuth2TokenValidator<Jwt> = JwtValidators.createDefaultWithIssuer(issuer)
+
+        // 2) Validador "aud"
+        val audienceClaimValidator = JwtClaimValidator<List<String>>("aud") { audList ->
+            audList != null && audience in audList
+        }
+
+        // 3) Si falla => 401 Unauthorized
+        return DelegatingOAuth2TokenValidator(withIssuer, audienceClaimValidator)
+    }
 }

@@ -29,4 +29,15 @@ class RestExceptionHandler {
                 path = req.requestURI,
             ),
         )
+
+    @ExceptionHandler(OwnerNotFound::class)
+    fun handleOwnerNotFound(ex: OwnerNotFound, req: HttpServletRequest): ResponseEntity<ApiError> =
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ApiError(
+                message = ex.message ?: "Owner authorization not found for this snippet",
+                code = "OWNER_NOT_FOUND",
+                path = req.requestURI,
+            ),
+        )
+
 }

@@ -13,12 +13,12 @@ import java.time.LocalDateTime
 abstract class CommonFields(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id: String? = null,
+    open val id: String? = null,
 
     @Column(updatable = false)
     @CreationTimestamp
-    val createdAt: LocalDateTime? = null,
+    open val createdAt: LocalDateTime? = null,
 
     @UpdateTimestamp
-    val updatedAt: LocalDateTime? = null,
+    open val updatedAt: LocalDateTime? = null,
 )

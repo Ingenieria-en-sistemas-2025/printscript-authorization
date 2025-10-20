@@ -114,3 +114,41 @@ tasks.register<JacocoCoverageVerification>("jacocoVerify") {
 tasks.check {
     dependsOn("detekt", "spotlessCheck", "jacocoVerify")
 }
+
+// Git hooks
+val gitDir = layout.projectDirectory.dir(".git")
+val hooksSrc = layout.projectDirectory.dir("hooks")
+val hooksDst = layout.projectDirectory.dir(".git/hooks")
+
+tasks.register<Copy>("installGitHooks") {
+    onlyIf { gitDir.asFile.exists() && hooksSrc.asFile.exists() }
+
+    from(hooksSrc)
+    into(hooksDst)
+    fileMode = Integer.parseInt("775", 8)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.register("printGitHooksStatus") {
+    outputs.upToDateWhen { false }
+    doLast {
+        val preCommit = hooksDst.file("pre-commit").asFile
+        val prePush   = hooksDst.file("pre-push").asFile
+
+        println("Git dir       : ${gitDir.asFile.absolutePath} " + if (gitDir.asFile.exists()) "(OK)" else "(MISSING)")
+        println("Source hooks  : ${hooksSrc.asFile.absolutePath} " + if (hooksSrc.asFile.exists()) "(OK)" else "(MISSING)")
+        println("Target hooks  : ${hooksDst.asFile.absolutePath} " + if (hooksDst.asFile.exists()) "(OK)" else "(MISSING)")
+        println("pre-commit    : " + if (preCommit.exists()) "OK" else "MISSING")
+        println("pre-push      : " + if (prePush.exists()) "OK" else "MISSING")
+    }
+}
+
+tasks.register("ensureGitHooks") {
+    dependsOn("installGitHooks", "printGitHooksStatus")
+    onlyIf { gitDir.asFile.exists() }
+}
+
+listOf("build", "check", "test", "assemble").forEach { taskName ->
+    tasks.named(taskName).configure { dependsOn("ensureGitHooks") }
+}
+

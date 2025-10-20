@@ -3,6 +3,8 @@ package com.printscript.authorization.db.repository
 import com.printscript.authorization.db.table.Authorization
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.Optional
 
 interface AuthorizationRepository : JpaRepository<Authorization, String> {
@@ -10,5 +12,14 @@ interface AuthorizationRepository : JpaRepository<Authorization, String> {
     fun countAllByUserId(userId: String): Int
     fun findByUserIdAndSnippetId(userId: String, snippetId: String): Optional<Authorization>
     fun deleteAllBySnippetId(snippetId: String)
-    fun getByScopeNameAndSnippetId(name: String, snippetId: String): Authorization
+    @Query("""
+        SELECT a
+        FROM Authorization a
+        JOIN a.scope s
+        WHERE s.name = :scopeName AND a.snippetId = :snippetId
+    """)
+    fun findByScopeNameAndSnippetId(
+        @Param("scopeName") scopeName: String,
+        @Param("snippetId") snippetId: String
+    ): Optional<Authorization>
 }

@@ -5,6 +5,7 @@ import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.dto.AuthorizationPage
 import com.printscript.authorization.service.AuthorizationService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,13 +23,20 @@ class AuthorizationController(
 ) {
 
     @PostMapping(Routes.CREATE)
-    fun create(@RequestBody input: AuthorizationCreateRequest): ResponseEntity<Unit> {
-        service.createAuthorization(input)
+    fun create(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestBody input: AuthorizationCreateRequest
+    ): ResponseEntity<Unit> {
+        service.createAuthorization(input.copy(userId = jwt.subject))
         return ResponseEntity.ok().build()
     }
 
     @GetMapping(Routes.MY)
-    fun listMine(jwt: Jwt, @RequestParam("page") page: Int, @RequestParam("size") size: Int): AuthorizationPage {
+    fun listMine(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam("page") page: Int,
+        @RequestParam("size") size: Int
+    ): AuthorizationPage {
         return service.listByUser(jwt.subject, page, size)
     }
 

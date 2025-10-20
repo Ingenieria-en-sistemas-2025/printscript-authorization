@@ -7,7 +7,7 @@ data class AuthorizationCreateRequest(
     val snippetId: String,
 
     @field:NotBlank(message = "User ID cannot be blank")
-    val userId: String,
+    val userId: String? = null,
 
     @field:NotBlank(message = "Scope cannot be blank")
     val scope: String,
