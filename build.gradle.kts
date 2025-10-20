@@ -122,26 +122,13 @@ val hooksDst = layout.projectDirectory.dir(".git/hooks")
 
 tasks.register<Copy>("installGitHooks") {
     onlyIf { gitDir.asFile.exists() && hooksSrc.asFile.exists() }
-
     from(hooksSrc)
     into(hooksDst)
-    fileMode = Integer.parseInt("775", 8) //chmod +x
+    fileMode = Integer.parseInt("775", 8) // chmod +x
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-tasks.register("printGitHooksStatus") {
-    outputs.upToDateWhen { false }
-    doLast {
-        val prePush = layout.projectDirectory.file(".git/hooks/pre-push").asFile
-        println("pre-push: " + if (prePush.exists()) "OK" else "MISSING")
-    }
-}
-
 tasks.register("ensureGitHooks") {
-    dependsOn("installGitHooks", "printGitHooksStatus")
+    dependsOn("installGitHooks")
     onlyIf { gitDir.asFile.exists() }
-}
-
-listOf("build", "check", "test", "assemble").forEach { taskName ->
-    tasks.named(taskName).configure { dependsOn("ensureGitHooks") }
 }
