@@ -1,0 +1,36 @@
+version: "3.9"
+volumes:
+  pg_authorization_local: {}
+services:
+  pg-authorization:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: authorization
+      POSTGRES_PASSWORD: authorization
+      POSTGRES_DB: authorization
+    ports: ["5432:5432"]  # si ya usás 5432 local, cambiá a "5434:5432"
+    volumes: [ "pg_authorization_local:/var/lib/postgresql/data" ]
+    networks:
+      printscript-dev:
+        aliases: [ pg-authorization ]
+    profiles: [ "local" ]
+
+  authorization:
+    build: .
+    container_name: ps-authorization-local
+    environment:
+      SERVER_PORT: 8080
+      LOGGING_LEVEL_ROOT: DEBUG
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg-authorization:5432/authorization
+      SPRING_DATASOURCE_USERNAME: authorization
+      SPRING_DATASOURCE_PASSWORD: authorization
+      EXECUTION_BASE_URL: http://execution:8080
+    depends_on: [ pg-authorization ]
+    ports: ["8081:8080"]
+    networks:
+      printscript-dev:
+        aliases: [ authorization ]
+    profiles: [ "local" ]
+networks:
+  printscript-dev:
+    external: true
