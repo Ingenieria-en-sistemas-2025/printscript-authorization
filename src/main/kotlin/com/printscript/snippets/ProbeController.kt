@@ -9,5 +9,5 @@ data class ProbeRes(val ok: Boolean, val target: String)
 class ProbeController(private val exec: ExecutionClient) {
 
     @GetMapping("/_probe/execution")
-    fun probe(): ProbeRes = ProbeRes(ok = exec.ping(), target = exec.target())
+    fun probe(): ProbeRes = ProbeRes(ok = exec.ping(), target = exec.target()) // borrar comentario
 }
