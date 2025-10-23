@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: authorization
       POSTGRES_PASSWORD: authorization
       POSTGRES_DB: authorization
-    ports: ["5432:5432"]  # si ya usás 5432 local, cambiá a "5434:5432"
+    ports: ["5432:5432"]
     volumes: [ "pg_authorization_local:/var/lib/postgresql/data" ]
     networks:
       printscript-dev:
