@@ -10,6 +10,8 @@ import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.service.AuthorizationService
 import jakarta.transaction.Transactional
 import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.Matchers.greaterThan
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -21,6 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -140,11 +143,50 @@ class TestsAuthorizationApi {
         }
 
         @Test
+        fun testFindOwnerReturns404IfNotFound() {
+            val nonExistentSnippetId = "sn-no-owner-404"
+
+            mockMvc.perform(
+                get("$base/owner/$nonExistentSnippetId")
+                    .with(asUser("requester")),
+            )
+                .andExpect(status().isNotFound)
+                .andExpect(jsonPath("$.code", equalTo("OWNER_NOT_FOUND")))
+                .andExpect(jsonPath("$.message", containsString("Owner")))
+        }
+
+        @Test
         fun testListForUser() {
             authRepo.save(Authorization(snippetId = "sn-map", userId = "mapper", scope = scopeOwner))
 
             val page = service.listByUser("mapper", 0, 10)
             assertTrue(page.total > 0)
+        }
+
+        @Test
+        fun testListMineReturnsAuthorizationsForAuthenticatedUser() {
+            val userId = "auth-user-123"
+            val sn1 = "sn-mine-1"
+            val sn2 = "sn-mine-2"
+
+            authRepo.saveAll(
+                listOf(
+                    Authorization(snippetId = sn1, userId = userId, scope = scopeEditor),
+                    Authorization(snippetId = sn2, userId = userId, scope = scopeEditor),
+                ),
+            )
+
+            mockMvc.perform(
+                get("$base/my")
+                    .param("page", "0")
+                    .param("size", "10")
+                    .with(asUser(userId)),
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.total", greaterThan(0))) // Verifica que haya registros
+                .andExpect(jsonPath("$.authorizations.length()", greaterThan(0)))
+                .andExpect(jsonPath("$.authorizations[0].snippetId", equalTo(sn1)))
+                .andExpect(jsonPath("$.authorizations[1].snippetId", equalTo(sn2)))
         }
     }
 }

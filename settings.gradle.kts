@@ -1,1 +1,1 @@
-rootProject.name = "printscript-snippets"
+rootProject.name = "printscript-authorization"

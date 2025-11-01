@@ -20,7 +20,7 @@ class AuthorizationService(
 ) {
     fun createAuthorization(input: AuthorizationCreateRequest) {
         val userId = requireNotNull(input.userId) {
-            "userId must be provided by controller (taken from JWT)"
+            "userId must be provided by controller"
         }
 
         if (authorizationRepo.findByUserIdAndSnippetId(userId, input.snippetId).isPresent) {

@@ -13,7 +13,8 @@ interface AuthorizationRepository : JpaRepository<Authorization, String> {
     fun findByUserIdAndSnippetId(userId: String, snippetId: String): Optional<Authorization>
     fun deleteAllBySnippetId(snippetId: String)
 
-    @Query(
+    @Query( // uso JPQL es el SQL de Java
+        // para hacer un JOIN para buscar la autorizacion por el nombre del scope
         """
         SELECT a
         FROM Authorization a
