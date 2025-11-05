@@ -25,6 +25,8 @@ services:
       SPRING_DATASOURCE_USERNAME: authorization
       SPRING_DATASOURCE_PASSWORD: authorization
       EXECUTION_BASE_URL: http://execution:8080
+      NEW_RELIC_APP_NAME: "printscript-authorization"
+      NEW_RELIC_AGENT_ENABLED: false
     depends_on: [ pg-authorization ]
     ports: ["8081:8080"]
     networks:

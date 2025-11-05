@@ -10,6 +10,7 @@ import com.printscript.authorization.exceptions.OwnerNotFound
 import com.printscript.authorization.exceptions.ScopeNotFound
 import com.printscript.authorization.exceptions.UserAlreadyAuthorized
 import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
@@ -18,23 +19,35 @@ class AuthorizationService(
     private val authorizationRepo: AuthorizationRepository,
     private val scopeRepo: AuthorizationScopeRepository,
 ) {
+    private val logger = LoggerFactory.getLogger(AuthorizationService::class.java)
+
     fun createAuthorization(input: AuthorizationCreateRequest) {
+        logger.info("Request received for creating authorization for user: ${input.userId} and snippet: ${input.snippetId}")
+
         val userId = requireNotNull(input.userId) {
+            logger.error("Controller failed to provide userId for authorization creation.")
             "userId must be provided by controller (taken from JWT)"
         }
 
         if (authorizationRepo.findByUserIdAndSnippetId(userId, input.snippetId).isPresent) {
+            logger.error("User with id: $userId already has authorization for snippet: ${input.snippetId}")
             throw UserAlreadyAuthorized()
         }
 
-        val scope = scopeRepo.findByName(input.scope).orElseThrow { ScopeNotFound() }
+        val scope = scopeRepo.findByName(input.scope).orElseThrow {
+            logger.error("Scope with name: ${input.scope} not found in database.")
+            ScopeNotFound()
+        }
 
         authorizationRepo.save(
             Authorization(snippetId = input.snippetId, userId = userId, scope = scope),
         )
+        logger.info("Authorization created successfully for user: $userId and snippet: ${input.snippetId}")
     }
 
     fun listByUser(userId: String, page: Int, size: Int): AuthorizationPage {
+        logger.info("Request received for listing authorizations for user: $userId (Page $page, Size $size)")
+
         val pagination = PageRequest.of(page, size)
         val records = authorizationRepo.findAllByUserId(userId, pagination)
         val total = authorizationRepo.countAllByUserId(userId)
@@ -53,19 +66,30 @@ class AuthorizationService(
             )
         }
 
+        logger.info("Successfully returning ${views.size} authorizations for user: $userId (Total: $total)")
         return AuthorizationPage(views, total)
     }
 
     @Transactional
     fun revokeAllBySnippet(snippetId: String) {
+        logger.info("Request received to revoke all authorizations for snippet: $snippetId")
+
         authorizationRepo.deleteAllBySnippetId(snippetId)
+
+        logger.info("All authorizations revoked successfully for snippet: $snippetId")
     }
 
     fun findOwner(snippetId: String): String {
+        logger.info("Request received to find owner for snippet: $snippetId")
+
         val ownerScope = scopeRepo.findByName("OWNER").orElseThrow { ScopeNotFound() }
         val ownerAuth = authorizationRepo.findByScopeNameAndSnippetId(ownerScope.name, snippetId)
-            .orElseThrow { OwnerNotFound() }
+            .orElseThrow {
+                logger.error("Owner authorization not found for snippet: $snippetId")
+                OwnerNotFound()
+            }
 
+        logger.info("Owner found for snippet: $snippetId (User ID: ${ownerAuth.userId})")
         return ownerAuth.userId
     }
 }

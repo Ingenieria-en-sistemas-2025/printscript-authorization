@@ -23,3 +23,7 @@ spring:
 
 auth0:
   audience: https://snippet-manager
+
+newrelic:
+  logs:
+    enabled: true
