@@ -40,16 +40,16 @@ class SecurityConfig(
                 it
                     // GET /authorization/my
                     .requestMatchers(GET, "/${R.AUTHORIZATION}/${R.MY}")
-                    .hasAuthority("SCOPE_read:authorizations")
+                    .authenticated()
                     // POST /authorization/create
                     .requestMatchers(POST, "/${R.AUTHORIZATION}/${R.CREATE}")
-                    .hasAuthority("SCOPE_write:authorizations")
+                    .authenticated()
                     // DELETE /authorization/snippet/{snippetId}
                     .requestMatchers(DELETE, "/${R.AUTHORIZATION}/snippet/*")
-                    .hasAuthority("SCOPE_write:authorizations")
+                    .authenticated()
                     // GET /authorization/owner/{snippetId}
                     .requestMatchers(GET, "/${R.AUTHORIZATION}/owner/*")
-                    .hasAuthority("SCOPE_read:authorizations")
+                    .authenticated()
                     .anyRequest().authenticated() // cualquier otro endpoint necesita token pero sin permisos
             }
             .oauth2ResourceServer { rs ->
