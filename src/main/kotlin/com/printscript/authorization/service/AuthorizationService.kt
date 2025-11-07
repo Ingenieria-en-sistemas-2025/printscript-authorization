@@ -52,17 +52,11 @@ class AuthorizationService(
         val records = authorizationRepo.findAllByUserId(userId, pagination)
         val total = authorizationRepo.countAllByUserId(userId)
 
-        val ownerScope = scopeRepo.findByName("OWNER").orElseThrow { ScopeNotFound() }
-
         val views = records.map {
-            val ownerAuth = authorizationRepo.findByScopeNameAndSnippetId(ownerScope.name, it.snippetId)
-                .orElse(null)
-
             AuthorizationView(
-                it.id!!,
-                it.snippetId,
-                ownerAuth?.userId ?: it.userId,
-                it.scope.name,
+                id = it.id!!,
+                snippetId = it.snippetId,
+                scope = it.scope.name,
             )
         }
 

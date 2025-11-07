@@ -3,7 +3,6 @@ package com.printscript.authorization.dto
 data class AuthorizationView(
     val id: String,
     val snippetId: String,
-    val ownerId: String,
     val scope: String,
 )
 
