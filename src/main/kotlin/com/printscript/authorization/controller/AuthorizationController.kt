@@ -5,8 +5,6 @@ import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.dto.AuthorizationPage
 import com.printscript.authorization.service.AuthorizationService
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,20 +22,19 @@ class AuthorizationController(
 
     @PostMapping(Routes.CREATE)
     fun create(
-        @AuthenticationPrincipal jwt: Jwt,
         @RequestBody input: AuthorizationCreateRequest,
     ): ResponseEntity<Unit> {
-        service.createAuthorization(input.copy(userId = jwt.subject))
+        service.createAuthorization(input)
         return ResponseEntity.ok().build()
     }
 
     @GetMapping(Routes.MY)
     fun listMine(
-        @AuthenticationPrincipal jwt: Jwt,
-        @RequestParam("page") page: Int,
-        @RequestParam("size") size: Int,
-    ): AuthorizationPage {
-        return service.listByUser(jwt.subject, page, size)
+        @RequestParam("userId") userId: String,
+        @RequestParam("pageNum", defaultValue = "0") pageNum: Int,
+        @RequestParam("pageSize", defaultValue = "20") pageSize: Int,
+    ): ResponseEntity<AuthorizationPage> {
+        return ResponseEntity.ok(service.listByUser(userId, pageNum, pageSize))
     }
 
     @DeleteMapping(Routes.SNIPPET_ID)
@@ -47,7 +44,7 @@ class AuthorizationController(
     }
 
     @GetMapping(Routes.OWNER)
-    fun findOwner(@PathVariable snippetId: String): String {
-        return service.findOwner(snippetId)
+    fun findOwner(@PathVariable snippetId: String): ResponseEntity<Map<String, String>> {
+        return ResponseEntity.ok(mapOf("ownerId" to service.findOwner(snippetId)))
     }
 }

@@ -25,8 +25,8 @@ class AuthorizationService(
         logger.info("Request received for creating authorization for user: ${input.userId} and snippet: ${input.snippetId}")
 
         val userId = requireNotNull(input.userId) {
-            logger.error("Controller failed to provide userId for authorization creation.")
-            "userId must be provided by controller (taken from JWT)"
+            logger.error("userId was not provided in request body")
+            "userId must be provided in request body"
         }
 
         if (authorizationRepo.findByUserIdAndSnippetId(userId, input.snippetId).isPresent) {
