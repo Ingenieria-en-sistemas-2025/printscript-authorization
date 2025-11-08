@@ -24,13 +24,16 @@ class AuthorizationService(
     fun createAuthorization(input: AuthorizationCreateRequest) {
         logger.info("Request received for creating authorization for user: ${input.userId} and snippet: ${input.snippetId}")
 
-        val userId = requireNotNull(input.userId) {
-            logger.error("userId was not provided in request body")
-            "userId must be provided in request body"
-        }
+        val decodedUserId = java.net.URLDecoder.decode(
+            requireNotNull(input.userId) {
+                logger.error("userId was not provided in request body")
+                "userId must be provided in request body"
+            },
+            "UTF-8",
+        )
 
-        if (authorizationRepo.findByUserIdAndSnippetId(userId, input.snippetId).isPresent) {
-            logger.error("User with id: $userId already has authorization for snippet: ${input.snippetId}")
+        if (authorizationRepo.findByUserIdAndSnippetId(decodedUserId, input.snippetId).isPresent) {
+            logger.error("User with id: $decodedUserId already has authorization for snippet: ${input.snippetId}")
             throw UserAlreadyAuthorized()
         }
 
@@ -40,17 +43,20 @@ class AuthorizationService(
         }
 
         authorizationRepo.save(
-            Authorization(snippetId = input.snippetId, userId = userId, scope = scope),
+            Authorization(snippetId = input.snippetId, userId = decodedUserId, scope = scope),
         )
-        logger.info("Authorization created successfully for user: $userId and snippet: ${input.snippetId}")
+        logger.info("Authorization created successfully for user: $decodedUserId and snippet: ${input.snippetId}")
     }
 
     fun listByUser(userId: String, page: Int, size: Int): AuthorizationPage {
-        logger.info("Request received for listing authorizations for user: $userId (Page $page, Size $size)")
+        // DECODIFICAR el userId aquí también
+        val decodedUserId = java.net.URLDecoder.decode(userId, "UTF-8")
+
+        logger.info("Request received for listing authorizations for user: $userId (decoded: $decodedUserId) (Page $page, Size $size)")
 
         val pagination = PageRequest.of(page, size)
-        val records = authorizationRepo.findAllByUserId(userId, pagination)
-        val total = authorizationRepo.countAllByUserId(userId)
+        val records = authorizationRepo.findAllByUserId(decodedUserId, pagination)
+        val total = authorizationRepo.countAllByUserId(decodedUserId)
 
         val views = records.map {
             AuthorizationView(
@@ -60,7 +66,7 @@ class AuthorizationService(
             )
         }
 
-        logger.info("Successfully returning ${views.size} authorizations for user: $userId (Total: $total)")
+        logger.info("Successfully returning ${views.size} authorizations for user: $decodedUserId (Total: $total)")
         return AuthorizationPage(views, total)
     }
 
