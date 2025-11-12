@@ -15,6 +15,10 @@ class RequestLogFilter : OncePerRequestFilter() {
 
     private val log = logger
 
+    companion object {
+        private const val NANO_TO_MILLISECOND = 1_000_000
+    }
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -26,7 +30,7 @@ class RequestLogFilter : OncePerRequestFilter() {
         var status: Int
         val elapsedMs = measureNanoTime {
             filterChain.doFilter(request, response)
-        }.let { it / 1_000_000 }
+        }.let { it / NANO_TO_MILLISECOND }
 
         status = response.status
         log.info("$method $uri - $status (${elapsedMs}ms)")
