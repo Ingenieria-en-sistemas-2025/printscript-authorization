@@ -5,24 +5,51 @@
 # <%= generated_for_user %>
 #
 # This section is for settings common to all environments.
-# Do not add anything above this next line.+common: &default_settings
+# Do not add anything above this next line.
+common: &default_settings
+  # The name of your application. This will appear in the New Relic UI.
+  app_name: printscript-authorization
 
+  # Your New Relic license key. This is required for the agent to connect to New Relic.
+  # It is recommended to use an environment variable for sensitive information.
+  license_key: ${NEW_RELIC_LICENSE_KEY}
 
-# Provides the ability to forward application logs to New Relic, generate log usage metrics,
-# and decorate local application log files with agent metadata for use with third party log forwarders.
-# The application_logging.forwarding and application_logging.local_decorating should not be used together.
-application_logging:
+  # Distributed tracing enables you to see the path of a request as it moves through a distributed system.
+  distributed_tracing:
+    enabled: true
 
-  # Provides control over all the application logging features for forwarding, local log
-  # decorating, and metrics features. Set as false to disable all application logging features.
-  # Default is true.
-  enabled: true
+  # Provides the ability to forward application logs to New Relic, generate log usage metrics,
+  # and decorate local application log files with agent metadata for use with third party log forwarders.
+  # The application_logging.forwarding and application_logging.local_decorating should not be used together.
+  application_logging:
 
-  # The agent will automatically forward application logs to New Relic in
-  # a format that includes agent metadata for linking them to traces and errors.
-  forwarding:
-    context_data:
+    # Provides control over all the application logging features for forwarding, local log
+    # decorating, and metrics features. Set as false to disable all application logging features.
+    # Default is true.
+    enabled: true
+
+    # The agent will automatically forward application logs to New Relic in
+    # a format that includes agent metadata for linking them to traces and errors.
+    forwarding:
+      # When true, application logs will be forwarded to New Relic. The default is true.
+      enabled: true
+      context_data:
+        # When true, context data (like trace id) will be added to logs before forwarding.
+        enabled: true
+
+    # Log metrics are generated from log data, providing insights into log volume and processing.
+    metrics:
       enabled: true
 
-    # When true, application logs will be forwarded to New Relic. The default is true.
-    enabled: true
+    # Local log decorating adds agent metadata to your local log files (for third-party forwarders).
+    # Since forwarding is enabled above, local_decorating is typically disabled or set to false.
+    local_decorating:
+      enabled: false
+
+# Settings for the development environment. It inherits all settings from 'common'.
+development:
+  <<: *default_settings
+
+# Settings for the production environment. It inherits all settings from 'common'.
+production:
+  <<: *default_settings

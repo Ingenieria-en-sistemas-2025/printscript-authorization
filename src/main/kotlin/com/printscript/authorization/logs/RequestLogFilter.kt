@@ -10,7 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import kotlin.system.measureNanoTime
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE + 1)
 class RequestLogFilter : OncePerRequestFilter() {
 
     private val log = logger
