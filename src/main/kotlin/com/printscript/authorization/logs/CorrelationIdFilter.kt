@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.UUID
+import com.newrelic.api.agent.NewRelic
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -27,6 +28,9 @@ class CorrelationIdFilter : OncePerRequestFilter() {
         val correlationId = request.getHeader(CORRELATION_ID_HEADER) ?: UUID.randomUUID().toString()
 
         MDC.put(CORRELATION_ID_KEY, correlationId)
+
+        NewRelic.addCustomParameter(CORRELATION_ID_KEY, correlationId)
+
         response.setHeader(CORRELATION_ID_HEADER, correlationId)
 
         try {
