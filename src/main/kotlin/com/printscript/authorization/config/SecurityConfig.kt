@@ -89,17 +89,3 @@ class SecurityConfig(
         return DelegatingOAuth2TokenValidator(withIssuer, audienceClaimValidator)
     }
 }
-/*
-RESTful
-.requestMatchers(GET, "/authorization/me")
-    .authenticated()
-
-.requestMatchers(POST, "/authorization")
-    .authenticated()
-
-.requestMatchers(DELETE, "/authorization/snippet/*")
-    .authenticated()
-
-.requestMatchers(GET, "/authorization/snippet/*/owner")
-    .authenticated()
- */
