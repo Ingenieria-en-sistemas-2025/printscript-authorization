@@ -38,6 +38,8 @@ class SecurityConfig(
         http
             .authorizeHttpRequests {
                 it
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
                     // GET /authorization/my
                     .requestMatchers(GET, "/${R.AUTHORIZATION}/${R.MY}")
                     .authenticated()
