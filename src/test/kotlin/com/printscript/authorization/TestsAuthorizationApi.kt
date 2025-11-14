@@ -64,7 +64,7 @@ class TestsAuthorizationApi {
             val payload = body("sn404", "u404", "NON_EXISTENT")
 
             mockMvc.perform(
-                post("$base/create")
+                post(base)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .with(asUser("whoever")),
@@ -78,7 +78,7 @@ class TestsAuthorizationApi {
             val payload = body("sn-ok", "user-ok", scopeEditor.name)
 
             mockMvc.perform(
-                post("$base/create")
+                post(base)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .with(asUser("tester")),
@@ -90,14 +90,14 @@ class TestsAuthorizationApi {
             val payload = body("sn-dupe", "user-dupe", scopeEditor.name)
 
             mockMvc.perform(
-                post("$base/create")
+                post(base)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .with(asUser("tester")),
             ).andExpect(status().isOk)
 
             mockMvc.perform(
-                post("$base/create")
+                post(base)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .with(asUser("tester")),
