@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
-import com.printscript.authorization.config.Routes as R
 
 @Configuration
 @EnableWebSecurity
@@ -40,17 +39,13 @@ class SecurityConfig(
                 it
                     .requestMatchers("/actuator/**")
                     .permitAll()
-                    // GET /authorization/my
-                    .requestMatchers(GET, "/${R.AUTHORIZATION}/${R.MY}")
+                    .requestMatchers(GET, "/authorization/me")
                     .authenticated()
-                    // POST /authorization/create
-                    .requestMatchers(POST, "/${R.AUTHORIZATION}/${R.CREATE}")
+                    .requestMatchers(POST, "/authorization")
                     .authenticated()
-                    // DELETE /authorization/snippet/{snippetId}
-                    .requestMatchers(DELETE, "/${R.AUTHORIZATION}/snippet/*")
+                    .requestMatchers(DELETE, "/authorization/snippet/*")
                     .authenticated()
-                    // GET /authorization/owner/{snippetId}
-                    .requestMatchers(GET, "/${R.AUTHORIZATION}/owner/*")
+                    .requestMatchers(GET, "/authorization/snippet/*/owner")
                     .authenticated()
                     .anyRequest().authenticated() // cualquier otro endpoint necesita token pero sin permisos
             }

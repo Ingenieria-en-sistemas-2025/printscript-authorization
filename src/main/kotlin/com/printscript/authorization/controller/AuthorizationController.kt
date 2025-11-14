@@ -1,6 +1,5 @@
 package com.printscript.authorization.controller
 
-import com.printscript.authorization.config.Routes
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.dto.AuthorizationPage
 import com.printscript.authorization.service.AuthorizationService
@@ -15,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(Routes.AUTHORIZATION)
+@RequestMapping("/authorization")
 class AuthorizationController(
     private val service: AuthorizationService,
 ) {
 
-    @PostMapping(Routes.CREATE)
+    @PostMapping
     fun create(
         @RequestBody input: AuthorizationCreateRequest,
     ): ResponseEntity<Unit> {
@@ -28,7 +27,7 @@ class AuthorizationController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping(Routes.MY)
+    @GetMapping("/me")
     fun listMine(
         @RequestParam("userId") userId: String,
         @RequestParam("pageNum", defaultValue = "0") pageNum: Int,
@@ -37,14 +36,18 @@ class AuthorizationController(
         return ResponseEntity.ok(service.listByUser(userId, pageNum, pageSize))
     }
 
-    @DeleteMapping(Routes.SNIPPET_ID)
-    fun revokeAllBySnippet(@PathVariable snippetId: String): ResponseEntity<Unit> {
+    @DeleteMapping("/snippet/{snippetId}")
+    fun revokeAllBySnippet(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<Unit> {
         service.revokeAllBySnippet(snippetId)
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping(Routes.OWNER)
-    fun findOwner(@PathVariable snippetId: String): ResponseEntity<Map<String, String>> {
+    @GetMapping("/snippet/{snippetId}/owner")
+    fun findOwner(
+        @PathVariable snippetId: String,
+    ): ResponseEntity<Map<String, String>> {
         return ResponseEntity.ok(mapOf("ownerId" to service.findOwner(snippetId)))
     }
 }
