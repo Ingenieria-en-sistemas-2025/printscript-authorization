@@ -7,7 +7,7 @@ import com.printscript.authorization.db.repository.AuthorizationScopeRepository
 import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.db.table.AuthorizationScope
 import com.printscript.authorization.dto.AuthorizationCreateRequest
-import com.printscript.authorization.service.AuthorizationService
+import com.printscript.authorization.service.AuthorizationServiceImpl
 import jakarta.transaction.Transactional
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -37,7 +37,7 @@ class TestsAuthorizationApi {
 
     @Autowired lateinit var authRepo: AuthorizationRepository
 
-    @Autowired lateinit var service: AuthorizationService
+    @Autowired lateinit var service: AuthorizationServiceImpl
 
     @Autowired lateinit var mockMvc: MockMvc
 

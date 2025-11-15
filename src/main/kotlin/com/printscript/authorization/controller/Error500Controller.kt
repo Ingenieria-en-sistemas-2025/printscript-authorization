@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/internal-test")
-open class TestErrorController {
+open class Error500Controller {
 
     @GetMapping("/always-500")
     fun triggerError(): ResponseEntity<Map<String, String>> {
