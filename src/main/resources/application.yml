@@ -27,3 +27,8 @@ auth0:
 newrelic:
   logs:
     enabled: true
+
+management:
+  health:
+    redis:
+      enabled: false
