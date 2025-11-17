@@ -1,11 +1,22 @@
 plugins {
+    // para compilar Kotlin en la JVM (Java)
     kotlin("jvm") version "1.9.23"
+
+    // integra Kotlin con Spring
     kotlin("plugin.spring") version "1.9.23"
+
+    // trabajar con JPA (entidades Kotlin + Hibernate)
     kotlin("plugin.jpa") version "1.9.23"
+
     id("org.springframework.boot") version "3.5.6"
+
+    // Manejo automatico de versiones de dependencias de Spring
     id("io.spring.dependency-management") version "1.1.7"
+
     id("jacoco")
+
     id("com.diffplug.spotless") version "6.25.0"
+
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
 }
 
@@ -15,66 +26,59 @@ description = "PrintScript Snippets microservice"
 
 java {
     toolchain {
+        // a Gradle -> usá Java 21 para compilar
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 repositories {
+    // Repositorio publico para dependencias de Java/Kotlin
     mavenCentral()
-
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/Ingenieria-en-sistemas-2025/printscript-contracts")
-        credentials {
-            username = (findProperty("gpr.user") as String?) ?: System.getenv("GITHUB_ACTOR")
-            password = (findProperty("gpr.key") as String?) ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 dependencies {
+    // JPA + Hibernate + Repositorios (para usar @Entity, JpaRepository, etc.)
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // Controladores REST, JSON, servidor HTTP (para usar @RestController, @GetMapping, etc.)
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    // Reflexion en Kotlin (Spring lo usa internamente para instanciar beans)
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    // Validacion de datos con anotaciones como @NotBlank, @Email, @Valid
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.newrelic.agent.java:newrelic-api:8.10.0")
+
+    // desarrollo (no prod): hot reload, restart automatico, LiveReload
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // Driver JDBC (Java Database Connectivity) de PostgreSQL
     runtimeOnly("org.postgresql:postgresql")
+
+    // Starter general de tests de Spring Boot: JUnit 5, Mockito, AssertJ, etc.
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Aserciones y helpers especificos de Kotlin para JUnit 5
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("com.h2database:h2")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Herramientas para testear endpoints protegidos: mockear .jwt en MockMvc
     testImplementation("org.springframework.security:spring-security-test")
-    testRuntimeOnly("com.h2database:h2")
-    // implementation("io.printscript:contracts:0.1.2")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
+// allOpen es necesario pq en Kotlin las clases son final por defecto
+// JPA/Hibernate necesita las entidades open para poder proxificarlas (extender)
 allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.Entity") // @Entity
+    annotation("jakarta.persistence.MappedSuperclass") // @MappedSuperclass
 }
 
+// Config gral para tareas de test: usar JUnit 5
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
 tasks.test {
     useJUnitPlatform()
+    // Cuando terminen los tests, ejecutar automaticamente el reporte de Jacoco
     finalizedBy(tasks.jacocoTestReport)
 }
 
@@ -163,6 +167,7 @@ val gitDir = layout.projectDirectory.dir(".git")
 val hooksSrc = layout.projectDirectory.dir("hooks")
 val hooksDst = layout.projectDirectory.dir(".git/hooks")
 
+// Tarea para instalar los hooks desde la carpeta hooks/ hacia .git/hooks
 tasks.register<Copy>("installGitHooks") {
     onlyIf { gitDir.asFile.exists() && hooksSrc.asFile.exists() }
     from(hooksSrc)
