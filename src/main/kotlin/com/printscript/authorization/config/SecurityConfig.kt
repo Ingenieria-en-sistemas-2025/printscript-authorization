@@ -27,9 +27,9 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 @Profile("!test")
 class SecurityConfig(
-    @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    @param:Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private val issuer: String,
-    @Value("\${auth0.audience}")
+    @param:Value("\${auth0.audience}")
     private val audience: String,
 ) {
     @Bean

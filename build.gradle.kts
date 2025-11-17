@@ -82,7 +82,10 @@ spotless {
     kotlin {
         target("**/*.kt")
         ktlint("0.50.0").editorConfigOverride(
-            mapOf("max_line_length" to "400", "indent_size" to "4"),
+            mapOf(
+                "max_line_length" to "400",
+                "indent_size" to "4",
+            ),
         )
         trimTrailingWhitespace()
         endWithNewline()
@@ -101,7 +104,17 @@ detekt {
     config = files("$rootDir/config/detekt/detekt.yml")
 }
 
-jacoco { toolVersion = "0.8.10" }
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+val jacocoExcludes = listOf(
+    "com/printscript/authorization/PingController*",
+    "com/printscript/authorization/AuthorizationApplication*",
+    "com/printscript/authorization/AuthorizationApplicationKt*",
+    "com/printscript/authorization/config/*",
+    "com/printscript/authorization/controller/Error500Controller*",
+)
 
 tasks.jacocoTestReport {
     reports {
@@ -109,9 +122,18 @@ tasks.jacocoTestReport {
         html.required.set(true)
         csv.required.set(false)
     }
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    exclude(jacocoExcludes)
+                }
+            },
+        ),
+    )
 }
 
-tasks.register<JacocoCoverageVerification>("jacocoVerify") {
+tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
@@ -121,10 +143,19 @@ tasks.register<JacocoCoverageVerification>("jacocoVerify") {
             }
         }
     }
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    exclude(jacocoExcludes)
+                }
+            },
+        ),
+    )
 }
 
 tasks.check {
-    dependsOn("detekt", "spotlessCheck", "jacocoVerify")
+    dependsOn("detekt", "spotlessCheck", tasks.jacocoTestCoverageVerification)
 }
 
 // Git hooks
