@@ -54,7 +54,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("com.h2database:h2")
-    implementation("io.printscript:contracts:0.1.2")
+    //implementation("io.printscript:contracts:0.1.2")
 }
 
 kotlin {
