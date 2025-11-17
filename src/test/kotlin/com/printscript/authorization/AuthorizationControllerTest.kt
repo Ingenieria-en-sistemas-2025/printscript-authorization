@@ -7,8 +7,6 @@ import com.printscript.authorization.db.repository.AuthorizationScopeRepository
 import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.db.table.AuthorizationScope
 import com.printscript.authorization.dto.AuthorizationCreateRequest
-import com.printscript.authorization.service.AuthorizationServiceImpl
-import jakarta.transaction.Transactional
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
@@ -21,23 +19,21 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TestsAuthorizationApi {
+class AuthorizationControllerTest {
 
     @Autowired lateinit var scopeRepo: AuthorizationScopeRepository
 
     @Autowired lateinit var authRepo: AuthorizationRepository
-
-    @Autowired lateinit var service: AuthorizationServiceImpl
 
     @Autowired lateinit var mockMvc: MockMvc
 
@@ -71,6 +67,7 @@ class TestsAuthorizationApi {
             )
                 .andExpect(status().isNotFound)
                 .andExpect(jsonPath("$.message", containsString("Scope")))
+                .andExpect(jsonPath("$.code").value("SCOPE_NOT_FOUND"))
         }
 
         @Test
@@ -101,7 +98,9 @@ class TestsAuthorizationApi {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(payload)
                     .with(asUser("tester")),
-            ).andExpect(status().isConflict)
+            )
+                .andExpect(status().isConflict)
+                .andExpect(jsonPath("$.code").value("USER_ALREADY_AUTHORIZED"))
         }
     }
 
@@ -128,23 +127,71 @@ class TestsAuthorizationApi {
     }
 
     @Nested
-    @Transactional
-    open inner class Queries {
-        @Test
-        fun testFindOwner() {
-            val sn = "sn-owner"
-            authRepo.save(Authorization(snippetId = sn, userId = "u-owner", scope = scopeOwner))
+    inner class Queries {
 
-            val owner = service.findOwner(sn)
-            assertEquals("u-owner", owner)
+        @Test
+        fun `GET - listMine returns AuthorizationPage`() {
+            val userId = "query-user"
+            authRepo.save(
+                Authorization(
+                    snippetId = "sn-q1",
+                    userId = userId,
+                    scope = scopeEditor,
+                ),
+            )
+
+            mockMvc.perform(
+                get("$base/me")
+                    .param("userId", userId)
+                    .param("pageNum", "0")
+                    .param("pageSize", "10")
+                    .with(asUser("tester")),
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.authorizations[0].snippetId").value("sn-q1"))
+                .andExpect(jsonPath("$.authorizations[0].scope").value("EDITOR"))
         }
 
         @Test
-        fun testListForUser() {
-            authRepo.save(Authorization(snippetId = "sn-map", userId = "mapper", scope = scopeOwner))
+        fun `GET - findOwner returns ownerId`() {
+            val sn = "sn-owner-test"
+            authRepo.save(
+                Authorization(
+                    snippetId = sn,
+                    userId = "owner-user",
+                    scope = scopeOwner,
+                ),
+            )
 
-            val page = service.listByUser("mapper", 0, 10)
-            assertTrue(page.total > 0)
+            mockMvc.perform(
+                get("$base/snippet/$sn/owner")
+                    .with(asUser("tester")),
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.ownerId").value("owner-user"))
+        }
+
+        @Test
+        fun `GET - findOwner returns 404 and OWNER_NOT_FOUND when no owner exists`() {
+            val sn = "sn-no-owner"
+
+            authRepo.save(
+                Authorization(
+                    snippetId = sn,
+                    userId = "some-user",
+                    scope = scopeEditor,
+                ),
+            )
+
+            mockMvc.perform(
+                get("$base/snippet/$sn/owner")
+                    .with(asUser("tester")),
+            )
+                .andExpect(status().isNotFound)
+                .andExpect(jsonPath("$.code").value("OWNER_NOT_FOUND"))
+                .andExpect(jsonPath("$.message", containsString("Owner authorization not found")))
+                .andExpect(jsonPath("$.path").value("/authorization/snippet/$sn/owner"))
         }
     }
 }
