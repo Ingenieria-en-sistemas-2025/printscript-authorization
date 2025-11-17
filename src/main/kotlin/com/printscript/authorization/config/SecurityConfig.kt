@@ -37,8 +37,6 @@ class SecurityConfig(
         http
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/actuator/**")
-                    .permitAll()
                     .requestMatchers(GET, "/ping").permitAll()
                     .requestMatchers(GET, "/authorization/me")
                     .authenticated()
