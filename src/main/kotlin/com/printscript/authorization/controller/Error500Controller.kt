@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/internal-test")
+@RequestMapping("/authorization/internal-test")
 open class Error500Controller {
 
     @GetMapping("/always-500")

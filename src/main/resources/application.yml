@@ -27,16 +27,3 @@ auth0:
 newrelic:
   logs:
     enabled: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
-      show-components: always
-      group:
-        liveness:
-          include: "livenessState"
