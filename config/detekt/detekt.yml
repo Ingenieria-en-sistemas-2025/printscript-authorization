@@ -46,5 +46,4 @@ complexity:
 exceptions:
   TooGenericExceptionCaught:
     active: true
-    excludes: ['**/runner/src/main/kotlin/org/printscript/runner/**']
     allowedExceptionNameRegex: '^(_|(ignore|expected).*)'
