@@ -6,6 +6,7 @@ import com.printscript.authorization.db.repository.AuthorizationRepository
 import com.printscript.authorization.db.repository.AuthorizationScopeRepository
 import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.db.table.AuthorizationScope
+import com.printscript.authorization.db.table.AuthorizationScopeType
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -45,11 +46,11 @@ class AuthorizationControllerTest {
 
     @BeforeAll
     fun setupBaseData() {
-        scopeOwner = scopeRepo.save(AuthorizationScope("OWNER"))
-        scopeEditor = scopeRepo.save(AuthorizationScope("EDITOR"))
+        scopeOwner = scopeRepo.save(AuthorizationScope(AuthorizationScopeType.OWNER))
+        scopeEditor = scopeRepo.save(AuthorizationScope(AuthorizationScopeType.EDITOR))
     }
 
-    private fun body(snippet: String, user: String, scope: String) =
+    private fun body(snippet: String, user: String, scope: AuthorizationScopeType) =
         json.writeValueAsString(AuthorizationCreateRequest(snippet, user, scope))
 
     @Nested
@@ -57,7 +58,7 @@ class AuthorizationControllerTest {
 
         @Test
         fun testReturns404IfScopeDoesNotExist() {
-            val payload = body("sn404", "u404", "NON_EXISTENT")
+            val payload = body("sn404", "u404", AuthorizationScopeType.NON_EXISTENT)
 
             mockMvc.perform(
                 post(base)

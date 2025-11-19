@@ -4,6 +4,7 @@ import com.printscript.authorization.db.repository.AuthorizationRepository
 import com.printscript.authorization.db.repository.AuthorizationScopeRepository
 import com.printscript.authorization.db.table.Authorization
 import com.printscript.authorization.db.table.AuthorizationScope
+import com.printscript.authorization.db.table.AuthorizationScopeType
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.exceptions.OwnerNotFound
 import com.printscript.authorization.exceptions.ScopeNotFound
@@ -40,7 +41,7 @@ class AuthorizationServiceTest {
 
     @BeforeAll
     fun setupBaseData() {
-        scopeOwner = scopeRepo.save(AuthorizationScope("OWNER"))
+        scopeOwner = scopeRepo.save(AuthorizationScope(AuthorizationScopeType.OWNER))
     }
 
     @Test
@@ -96,7 +97,7 @@ class AuthorizationServiceTest {
                 AuthorizationCreateRequest(
                     snippetId = "sn-scope-missing",
                     userId = "user-x",
-                    scope = "NON_EXISTENT_SCOPE",
+                    scope = AuthorizationScopeType.NON_EXISTENT,
                 ),
             )
         }
