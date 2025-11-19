@@ -3,6 +3,7 @@ package com.printscript.authorization.service
 import com.printscript.authorization.db.repository.AuthorizationRepository
 import com.printscript.authorization.db.repository.AuthorizationScopeRepository
 import com.printscript.authorization.db.table.Authorization
+import com.printscript.authorization.db.table.AuthorizationScopeType
 import com.printscript.authorization.dto.AuthorizationCreateRequest
 import com.printscript.authorization.dto.AuthorizationPage
 import com.printscript.authorization.dto.AuthorizationView
@@ -24,13 +25,7 @@ class AuthorizationServiceImpl(
     override fun createAuthorization(input: AuthorizationCreateRequest) {
         logger.info("Request received for creating authorization for user: ${input.userId} and snippet: ${input.snippetId}")
 
-        val decodedUserId = java.net.URLDecoder.decode(
-            requireNotNull(input.userId) {
-                logger.error("userId was not provided in request body")
-                "userId must be provided in request body"
-            },
-            "UTF-8",
-        )
+        val decodedUserId = java.net.URLDecoder.decode(input.userId, "UTF-8")
 
         if (authorizationRepo.findByUserIdAndSnippetId(decodedUserId, input.snippetId).isPresent) {
             logger.error("User with id: $decodedUserId already has authorization for snippet: ${input.snippetId}")
@@ -82,7 +77,7 @@ class AuthorizationServiceImpl(
     override fun findOwner(snippetId: String): String {
         logger.info("Request received to find owner for snippet: $snippetId")
 
-        val ownerScope = scopeRepo.findByName("OWNER").orElseThrow { ScopeNotFound() }
+        val ownerScope = scopeRepo.findByName(AuthorizationScopeType.OWNER).orElseThrow { ScopeNotFound() }
         val ownerAuth = authorizationRepo.findByScopeNameAndSnippetId(ownerScope.name, snippetId)
             .orElseThrow {
                 logger.error("Owner authorization not found for snippet: $snippetId")

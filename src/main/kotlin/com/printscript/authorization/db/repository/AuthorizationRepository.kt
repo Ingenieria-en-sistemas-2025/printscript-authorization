@@ -1,6 +1,7 @@
 package com.printscript.authorization.db.repository
 
 import com.printscript.authorization.db.table.Authorization
+import com.printscript.authorization.db.table.AuthorizationScopeType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -22,7 +23,7 @@ interface AuthorizationRepository : JpaRepository<Authorization, String> {
     """,
     )
     fun findByScopeNameAndSnippetId(
-        @Param("scopeName") scopeName: String,
+        @Param("scopeName") scopeName: AuthorizationScopeType,
         @Param("snippetId") snippetId: String,
     ): Optional<Authorization>
 }

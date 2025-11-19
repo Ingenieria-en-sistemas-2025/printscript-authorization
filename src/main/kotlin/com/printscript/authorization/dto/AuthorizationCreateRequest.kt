@@ -1,5 +1,6 @@
 package com.printscript.authorization.dto
 
+import com.printscript.authorization.db.table.AuthorizationScopeType
 import jakarta.validation.constraints.NotBlank
 
 data class AuthorizationCreateRequest(
@@ -9,6 +10,5 @@ data class AuthorizationCreateRequest(
     @field:NotBlank(message = "User ID cannot be blank")
     val userId: String,
 
-    @field:NotBlank(message = "Scope cannot be blank")
-    val scope: String,
+    val scope: AuthorizationScopeType,
 )
